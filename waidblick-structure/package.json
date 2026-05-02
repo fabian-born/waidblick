@@ -1,0 +1,28 @@
+{
+  "name": "waidblick",
+  "version": "1.0.0",
+  "description": "Waidblick - Hunting Management System",
+  "private": true,
+  "workspaces": ["BACKEND", "FRONTEND"],
+  "scripts": {
+    "install-all": "npm install && cd BACKEND && npm install && cd ../FRONTEND && npm install && cd ..",
+    "dev": "concurrently \"npm run dev:backend\" \"npm run dev:frontend\"",
+    "dev:backend": "cd BACKEND && npm run dev",
+    "dev:frontend": "cd FRONTEND && npm run dev",
+    "build": "npm run build:backend && npm run build:frontend",
+    "build:backend": "cd BACKEND && npm run build",
+    "build:frontend": "cd FRONTEND && npm run build",
+    "test": "concurrently \"npm run test:backend\" \"npm run test:frontend\"",
+    "test:backend": "cd BACKEND && npm run test",
+    "test:frontend": "cd FRONTEND && npm run test",
+    "lint": "concurrently \"npm run lint:backend\" \"npm run lint:frontend\"",
+    "lint:backend": "cd BACKEND && npm run lint",
+    "lint:frontend": "cd FRONTEND && npm run lint",
+    "lint:fix": "concurrently \"npm run lint:fix:backend\" \"npm run lint:fix:frontend\"",
+    "lint:fix:backend": "cd BACKEND && npm run lint:fix",
+    "lint:fix:frontend": "cd FRONTEND && npm run lint:fix"
+  },
+  "devDependencies": {
+    "concurrently": "^8.2.2"
+  }
+}

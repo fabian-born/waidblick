@@ -1,0 +1,68 @@
+version: '3.8'
+
+services:
+  # PostgreSQL Database
+  postgres:
+    image: postgres:16-alpine
+    container_name: waidblick-postgres
+    environment:
+      POSTGRES_USER: ${DB_USER:-waidblick_user}
+      POSTGRES_PASSWORD: ${DB_PASSWORD:-password}
+      POSTGRES_DB: ${DB_NAME:-waidblick}
+    ports:
+      - '${DB_PORT:-5432}:5432'
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ['CMD-SHELL', 'pg_isready -U ${DB_USER:-waidblick_user}']
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  # Backend API
+  backend:
+    build:
+      context: ./BACKEND
+      dockerfile: Dockerfile
+    container_name: waidblick-backend
+    environment:
+      NODE_ENV: development
+      DB_HOST: postgres
+      DB_PORT: 5432
+      DB_NAME: ${DB_NAME:-waidblick}
+      DB_USER: ${DB_USER:-waidblick_user}
+      DB_PASSWORD: ${DB_PASSWORD:-password}
+      PORT: 3001
+      CORS_ORIGIN: 'http://localhost:5173'
+    ports:
+      - '3001:3001'
+    depends_on:
+      postgres:
+        condition: service_healthy
+    volumes:
+      - ./BACKEND/src:/app/src
+    command: npm run dev
+
+  # Frontend Development Server
+  frontend:
+    build:
+      context: ./FRONTEND
+      dockerfile: Dockerfile
+    container_name: waidblick-frontend
+    environment:
+      VITE_API_BASE_URL: 'http://localhost:3001'
+    ports:
+      - '5173:5173'
+    depends_on:
+      - backend
+    volumes:
+      - ./FRONTEND/src:/app/src
+    command: npm run dev
+
+volumes:
+  postgres_data:
+    driver: local
+
+networks:
+  default:
+    name: waidblick-network
